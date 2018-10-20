@@ -1,11 +1,9 @@
-// const WorldWindowWrapper = require('./setupWorldView');
-
-console.log('HERE');
+const WorldWindowWrapper = require('./setupWorldView');
 
 function main() {
-    console.log('HERe');
-    // worldWindow = new WorldWindowWrapper();
-    // worldWindow.setupWorldView();
+    let wwd = new WorldWind.WorldWindow("canvasOne");
+    worldWindow = new WorldWindowWrapper(wwd);
+    worldWindow.setupWorldView();
 }
 
 $(main);

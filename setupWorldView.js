@@ -1,10 +1,9 @@
 
 class WorldWindowWrapper {
     
-    constructor() {
-        this.wwd = new WorldWind.WorldWindow("canvasOne");
-        this.overlay = $('#overlay');
-        this.layers = {}
+    constructor(wwd) {
+        this.wwd = wwd;
+        this.layers = {};
     }
 
     addLayer(layer) {
@@ -27,4 +26,4 @@ class WorldWindowWrapper {
     }
 }
 
-export default WorldWindowWrapper;
+module.exports = WorldWindowWrapper;
