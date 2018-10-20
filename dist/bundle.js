@@ -95,6 +95,21 @@
 
 const parseXml = __webpack_require__(/*! ./parser */ "./parser.js");
 
+function fetchSats() {
+    let requestParams = {
+        contentType: 'application/xml',
+        url: 'https://sscweb.sci.gsfc.nasa.gov/WS/sscr/2/observatories'
+    }
+    let satsRequest = $.ajax(requestParams).then((res) => {
+        let ids = [];
+        let parsed = parseXml(res);
+        sats = parsed.ObservatoryResponse.Observatory;
+        for (sat of sats) {ids.push(sat.Id['#text']);}
+        return ids;
+    })
+    return satsRequest;
+}
+
 function fetchSatelliteCoordinates(windowObject) {
     let xmlData = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><DataRequest xmlns="http://sscweb.gsfc.nasa.gov/schema"><TimeInterval><Start>2013-09-15T15:53:00+05:00</Start><End>2013-09-18T15:53:00+05:00</End></TimeInterval><BFieldModel><InternalBFieldModel>IGRF-10</InternalBFieldModel><ExternalBFieldModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="Tsyganenko89cBFieldModel"><KeyParameterValues>KP3_3_3</KeyParameterValues></ExternalBFieldModel><TraceStopAltitude>100</TraceStopAltitude></BFieldModel><Satellites><Id>ace</Id><ResolutionFactor>2</ResolutionFactor></Satellites><OutputOptions><AllLocationFilters>true</AllLocationFilters><CoordinateOptions><CoordinateSystem>Gse</CoordinateSystem><Component>X</Component></CoordinateOptions><CoordinateOptions><CoordinateSystem>Gse</CoordinateSystem><Component>Y</Component></CoordinateOptions><CoordinateOptions><CoordinateSystem>Gse</CoordinateSystem><Component>Z</Component></CoordinateOptions><MinMaxPoints>2</MinMaxPoints></OutputOptions></DataRequest>';
     let requestParams = {
@@ -106,13 +121,13 @@ function fetchSatelliteCoordinates(windowObject) {
     let locationsRequest = $.ajax(requestParams).then(
         (res) => {
             let parsed = parseXml(res);
-            let satelliteId = parsed.Result.Data.Id["#text"];
-            let times = parsed.Result.Data.Time;
+            let satelliteId = parsed.Response.Result.Data.Id["#text"];
+            let times = parsed.Response.Result.Data.Time;
             for (const [idx, time] of times.entries()) {
                 let coordinates = [
-                    parsed.Result.Data.Coordinates.X[idx],
-                    parsed.Result.Data.Coordinates.Y[idx],
-                    parsed.Result.Data.Coordinates.Z[idx]
+                    parsed.Response.Result.Data.Coordinates.X[idx],
+                    parsed.Response.Result.Data.Coordinates.Y[idx],
+                    parsed.Response.Result.Data.Coordinates.Z[idx]
                 ]
                 windowObject.addSatelliteData(
                     satelliteId,
@@ -125,7 +140,7 @@ function fetchSatelliteCoordinates(windowObject) {
     )
 }
 
-module.exports = fetchSatelliteCoordinates;
+module.exports = {fetchSatelliteCoordinates, fetchSats};
 
 /***/ }),
 
@@ -137,12 +152,13 @@ module.exports = fetchSatelliteCoordinates;
 /***/ (function(module, exports, __webpack_require__) {
 
 const WorldWindowWrapper = __webpack_require__(/*! ./setupWorldView */ "./setupWorldView.js");
-const fetchSatelliteCoordinates = __webpack_require__(/*! ./fetch.js */ "./fetch.js")
+const {fetchSats, fetchSatelliteCoordinates} = __webpack_require__(/*! ./fetch.js */ "./fetch.js")
 
 function main() {
     let wwd = new WorldWind.WorldWindow("canvasOne");
     worldWindow = new WorldWindowWrapper(wwd);
     worldWindow.setupWorldView();
+    fetchSats().then((res) => {worldWindow.satelliteIds = res;});
     fetchSatelliteCoordinates(worldWindow);
 }
 
@@ -158,7 +174,6 @@ $(main);
 /***/ (function(module, exports) {
 
 function parseXml(xmlObj, arrayTags) {
-    dom = xmlObj.documentElement
     // var dom = null;
     // if (window.DOMParser) {
     //     dom = (new DOMParser()).parseFromString(xml, "text/xml");
@@ -220,10 +235,9 @@ function parseXml(xmlObj, arrayTags) {
     }
 
     var result = {};
-    if(dom.childNodes.length) {
-        parseNode(dom.childNodes[0], result);
+    if(xmlObj.childNodes.length) {
+        parseNode(xmlObj.childNodes[0], result);
     }
-
     return result;
 }
 
@@ -240,11 +254,12 @@ module.exports = parseXml;
 
 
 class WorldWindowWrapper {
-    
+
     constructor(wwd) {
         this.wwd = wwd;
         this.layers = {};
         this.satellitePositions = {};
+        this.satelliteIds = [];
     }
 
     addLayer(layer) {
@@ -257,7 +272,7 @@ class WorldWindowWrapper {
             this.satellitePositions[satelliteId] = {};
         }
         this.satellitePositions[satelliteId][time] = coordinates;
-    } 
+    }
 
     setupWorldView() {
         let layers = [

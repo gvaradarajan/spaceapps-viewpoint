@@ -1,10 +1,11 @@
 
 class WorldWindowWrapper {
-    
+
     constructor(wwd) {
         this.wwd = wwd;
         this.layers = {};
         this.satellitePositions = {};
+        this.satelliteIds = [];
     }
 
     addLayer(layer) {
@@ -17,7 +18,7 @@ class WorldWindowWrapper {
             this.satellitePositions[satelliteId] = {};
         }
         this.satellitePositions[satelliteId][time] = coordinates;
-    } 
+    }
 
     setupWorldView() {
         let layers = [

@@ -1,5 +1,4 @@
 function parseXml(xmlObj, arrayTags) {
-    dom = xmlObj.documentElement
     // var dom = null;
     // if (window.DOMParser) {
     //     dom = (new DOMParser()).parseFromString(xml, "text/xml");
@@ -61,10 +60,9 @@ function parseXml(xmlObj, arrayTags) {
     }
 
     var result = {};
-    if(dom.childNodes.length) {
-        parseNode(dom.childNodes[0], result);
+    if(xmlObj.childNodes.length) {
+        parseNode(xmlObj.childNodes[0], result);
     }
-
     return result;
 }
 
