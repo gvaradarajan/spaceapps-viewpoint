@@ -1,0 +1,25 @@
+{
+  "name": "spaceapps-viewpoint",
+  "version": "1.0.0",
+  "description": "satellites are people too",
+  "main": "main.js",
+  "scripts": {
+    "start": "webpack --config webpack.config.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gvaradarajan/spaceapps-viewpoint.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gvaradarajan/spaceapps-viewpoint/issues"
+  },
+  "homepage": "https://github.com/gvaradarajan/spaceapps-viewpoint#readme",
+  "devDependencies": {
+    "webpack": "^4.21.0",
+    "webpack-cli": "^3.1.2"
+  }
+}
