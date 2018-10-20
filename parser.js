@@ -67,3 +67,5 @@ function parseXml(xmlObj, arrayTags) {
 
     return result;
 }
+
+export default parseXml
