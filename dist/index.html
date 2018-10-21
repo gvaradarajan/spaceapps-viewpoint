@@ -6,10 +6,14 @@
         <script src="https://files.worldwind.arc.nasa.gov/artifactory/web/0.9.0/worldwind.min.js"></script>
     </head>
     <body>
-        <div style="z-index: 1">
+        <div style="z-index: 1; display: flex; align-items: center;">
             <canvas id="canvasOne" width="1024" height="768">
                 Your browser does not support HTML5 Canvas.
             </canvas>
+            <div class="dashboard" style="height: 100px; display: flex; flex-direction: column; justify-content: space-between;">
+                <input type="range" min="1" max="100" value="0" id="timeSlider">
+                <input type="date" min="2017-10-20" max="2018-10-20" value="2018-10-20" id="datePicker">
+            </div>
         </div>
         <div style="opacity: 0; z-index: 100">
             <canvas id="overlay" width="1024" height="768">

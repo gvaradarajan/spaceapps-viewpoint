@@ -6,6 +6,7 @@ class WorldWindowWrapper {
         this.layers = {};
         this.satellitePositions = {};
         this.satelliteIds = [];
+        this.timePercent = 0;
     }
 
     addLayer(layer) {
@@ -34,10 +35,15 @@ class WorldWindowWrapper {
     }
 
 
+    replaceSatellites() {
+        this.placeSatellites(this.satelliteIds);
+    }
+
     placeSatellites(ids) {
         let modelLayer = new WorldWind.RenderableLayer('Satellite Layer');
         console.log(modelLayer)
         this.addLayer(modelLayer);
+        console.log(WorldWind.configuration.baseUrl + 'examples/collada_models/duck/');
         var config = { dirPath: WorldWind.configuration.baseUrl + 'examples/collada_models/duck/' };
         for (let satelliteId of ids) {
             console.log(satelliteId)
@@ -45,7 +51,8 @@ class WorldWindowWrapper {
             if (this.satellitePositions[satelliteId]) {
                 let times = Object.keys(this.satellitePositions[satelliteId])
                 if (times) {
-                    let time = times[0]
+                    let timeIdx = Math.round(this.timePercent / times.length)
+                    let time = times[timeIdx]
                     let coordinates = this.satellitePositions[satelliteId][time];
                     let position = new WorldWind.Position(
                         coordinates[0], coordinates[1], coordinates[2]

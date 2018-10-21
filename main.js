@@ -1,6 +1,19 @@
 const WorldWindowWrapper = require('./setupWorldView');
 const {fetchSats, fetchSatelliteCoordinates} = require('./fetch.js')
 
+function subscribeHandlers(wwObj) {
+    $('#timeSlider').on('change', () => {
+        wwObj.timePercent = $('#timeSlider').val();
+        wwObj.replaceSatellites();
+    })
+    $('#datePicker').on('change', () => {
+        let date = $('#datePicker').val()
+        let startTime = date + 'T00:00:00+5:00';
+        let endTime = date + 'T11:59:59+5:00';
+        fetchSatelliteCoordinates(wwObj, startTime, endTime);
+    })
+}
+
 function main() {
     let wwd = new WorldWind.WorldWindow("canvasOne");
     worldWindow = new WorldWindowWrapper(wwd);
@@ -9,9 +22,10 @@ function main() {
         (res) => {
             worldWindow.satelliteIds = res;
             fetchSatelliteCoordinates(
-                worldWindow, '2013-09-15T15:53:00+05:00', '2013-09-18T15:53:00+05:00');
+                worldWindow, '2017-10-20T15:53:00+05:00', '2018-10-20T15:53:00+05:00');
         }
     );
+    subscribeHandlers(worldWindow);
 }
 
 $(main);

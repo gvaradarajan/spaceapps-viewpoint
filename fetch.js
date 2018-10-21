@@ -58,7 +58,7 @@ function getIdChunks(satelliteIds) {
 function fetchSatelliteCoordinates(windowObject, startTime, endTime) {
     let idChunks = getIdChunks(windowObject.satelliteIds)
     let totalIds = windowObject.satelliteIds.length
-    console.log('Num chunks: ' + idChunks.length)
+    console.log('Nunchuks: ' + idChunks.length)
     for (ids of idChunks) {
         let xmlData = buildSatelliteRequest(
             startTime, endTime, ids);
