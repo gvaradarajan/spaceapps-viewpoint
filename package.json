@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/gvaradarajan/spaceapps-viewpoint#readme",
   "devDependencies": {
+    "file-loader": "^2.0.0",
     "webpack": "^4.21.0",
     "webpack-cli": "^3.1.2"
   },

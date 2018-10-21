@@ -80,6 +80,9 @@ function fetchSatelliteCoordinates(windowObject, startTime, endTime) {
                             parseFloat(satellite.Coordinates.Y[idx]["#text"]),
                             parseFloat(satellite.Coordinates.Z[idx]["#text"])
                         ];
+                        if (coordinates[2] < 0) {
+                            coordinates[2] = -coordinates[2]
+                        }
                         windowObject.addSatelliteData(
                             satelliteId,
                             time["#text"],

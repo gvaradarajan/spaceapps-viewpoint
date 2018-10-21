@@ -175,6 +175,9 @@ function fetchSatelliteCoordinates(windowObject, startTime, endTime) {
                             parseFloat(satellite.Coordinates.Y[idx]["#text"]),
                             parseFloat(satellite.Coordinates.Z[idx]["#text"])
                         ];
+                        if (coordinates[2] < 0) {
+                            coordinates[2] = -coordinates[2]
+                        }
                         windowObject.addSatelliteData(
                             satelliteId,
                             time["#text"],
@@ -364,26 +367,25 @@ class WorldWindowWrapper {
 
     placeSatellites(ids) {
         let modelLayer = new WorldWind.RenderableLayer('Satellite Layer');
-        console.log(modelLayer)
         this.addLayer(modelLayer);
         console.log(WorldWind.configuration.baseUrl + 'examples/collada_models/duck/');
         var config = { dirPath: WorldWind.configuration.baseUrl + 'examples/collada_models/duck/' };
         for (let satelliteId of ids) {
-            console.log(satelliteId)
-            console.log(this.satellitePositions[satelliteId])
             if (this.satellitePositions[satelliteId]) {
                 let times = Object.keys(this.satellitePositions[satelliteId])
                 if (times) {
                     let timeIdx = Math.round(this.timePercent / times.length)
                     let time = times[timeIdx]
                     let coordinates = this.satellitePositions[satelliteId][time];
+                    console.log(this.satellitePositions[satelliteId])
                     let position = new WorldWind.Position(
                         coordinates[0], coordinates[1], coordinates[2]
                     );
                     let colladaLoader = new WorldWind.ColladaLoader(position, config);
+                    // REVISIT - use Aura_27.dae and then eventually pull correct models per
+                    // satellite
                     colladaLoader.load("duck.dae", (colladaModel) => {
-                        colladaModel.scale = 9000;
-                        console.log(this.layers)
+                        colladaModel.scale = 4000;
                         this.layers['Satellite Layer'].addRenderable(colladaModel);
                     });
                 }
