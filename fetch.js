@@ -30,7 +30,7 @@ function buildSatelliteRequest(startTime, endTime, satelliteIds) {
     let allFiltersTag = '<AllLocationFilters>true</AllLocationFilters>';
     let coordinateTag = '';
     let axes = ['X', 'Y', 'Z'];
-    let baseAxisTag = '<CoordinateOptions><CoordinateSystem>Gse</CoordinateSystem>';
+    let baseAxisTag = '<CoordinateOptions><CoordinateSystem>Geo</CoordinateSystem>';
     for (axis of axes) {
         let thisAxisTag = `${baseAxisTag}<Component>${axis}</Component></CoordinateOptions>`;
         coordinateTag += thisAxisTag
@@ -76,9 +76,9 @@ function fetchSatelliteCoordinates(windowObject, startTime, endTime) {
                     let times = satellite.Time;
                     for (const [idx, time] of times.entries()) {
                         let coordinates = [
-                            satellite.Coordinates.X[idx],
-                            satellite.Coordinates.Y[idx],
-                            satellite.Coordinates.Z[idx]
+                            parseFloat(satellite.Coordinates.X[idx]["#text"]),
+                            parseFloat(satellite.Coordinates.Y[idx]["#text"]),
+                            parseFloat(satellite.Coordinates.Z[idx]["#text"])
                         ];
                         windowObject.addSatelliteData(
                             satelliteId,
@@ -87,8 +87,9 @@ function fetchSatelliteCoordinates(windowObject, startTime, endTime) {
                         );
                     }
                 };
-                // renderSatellites(ids);
-                console.log('Put satellite render logic here')
+                windowObject.placeSatellites(ids);
+                // console.log('Put satellite render logic here')
+                // console.log(windowObject.satellitePositions)
             }
         )
     };

@@ -9,7 +9,7 @@ class WorldWindowWrapper {
     }
 
     addLayer(layer) {
-        this.layers[layer.constructor.name] = layer;
+        this.layers[layer.displayName] = layer;
         return this.wwd.addLayer(layer);
     }
 
@@ -24,7 +24,6 @@ class WorldWindowWrapper {
         let layers = [
             new WorldWind.BMNGOneImageLayer(),
             new WorldWind.BMNGLandsatLayer(),
-            new WorldWind.CompassLayer(),
         ];
 
         for (let layer of layers) {
@@ -33,6 +32,35 @@ class WorldWindowWrapper {
         this.addLayer(new WorldWind.CoordinatesDisplayLayer(this.wwd));
         this.addLayer(new WorldWind.ViewControlsLayer(this.wwd));
     }
+
+
+    placeSatellites(ids) {
+        let modelLayer = new WorldWind.RenderableLayer('Satellite Layer');
+        console.log(modelLayer)
+        this.addLayer(modelLayer);
+        var config = { dirPath: WorldWind.configuration.baseUrl + 'examples/collada_models/duck/' };
+        for (let satelliteId of ids) {
+            console.log(satelliteId)
+            console.log(this.satellitePositions[satelliteId])
+            if (this.satellitePositions[satelliteId]) {
+                let times = Object.keys(this.satellitePositions[satelliteId])
+                if (times) {
+                    let time = times[0]
+                    let coordinates = this.satellitePositions[satelliteId][time];
+                    let position = new WorldWind.Position(
+                        coordinates[0], coordinates[1], coordinates[2]
+                    );
+                    let colladaLoader = new WorldWind.ColladaLoader(position, config);
+                    colladaLoader.load("duck.dae", (colladaModel) => {
+                        colladaModel.scale = 9000;
+                        console.log(this.layers)
+                        this.layers['Satellite Layer'].addRenderable(colladaModel);
+                    });
+                }
+            }
+        }
+    }
+
 }
 
 module.exports = WorldWindowWrapper;

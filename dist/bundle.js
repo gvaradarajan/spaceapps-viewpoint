@@ -125,7 +125,7 @@ function buildSatelliteRequest(startTime, endTime, satelliteIds) {
     let allFiltersTag = '<AllLocationFilters>true</AllLocationFilters>';
     let coordinateTag = '';
     let axes = ['X', 'Y', 'Z'];
-    let baseAxisTag = '<CoordinateOptions><CoordinateSystem>Gse</CoordinateSystem>';
+    let baseAxisTag = '<CoordinateOptions><CoordinateSystem>Geo</CoordinateSystem>';
     for (axis of axes) {
         let thisAxisTag = `${baseAxisTag}<Component>${axis}</Component></CoordinateOptions>`;
         coordinateTag += thisAxisTag
@@ -171,9 +171,9 @@ function fetchSatelliteCoordinates(windowObject, startTime, endTime) {
                     let times = satellite.Time;
                     for (const [idx, time] of times.entries()) {
                         let coordinates = [
-                            satellite.Coordinates.X[idx],
-                            satellite.Coordinates.Y[idx],
-                            satellite.Coordinates.Z[idx]
+                            parseFloat(satellite.Coordinates.X[idx]["#text"]),
+                            parseFloat(satellite.Coordinates.Y[idx]["#text"]),
+                            parseFloat(satellite.Coordinates.Z[idx]["#text"])
                         ];
                         windowObject.addSatelliteData(
                             satelliteId,
@@ -182,8 +182,9 @@ function fetchSatelliteCoordinates(windowObject, startTime, endTime) {
                         );
                     }
                 };
-                // renderSatellites(ids);
-                console.log('Put satellite render logic here')
+                windowObject.placeSatellites(ids);
+                // console.log('Put satellite render logic here')
+                // console.log(windowObject.satellitePositions)
             }
         )
     };
@@ -317,7 +318,7 @@ class WorldWindowWrapper {
     }
 
     addLayer(layer) {
-        this.layers[layer.constructor.name] = layer;
+        this.layers[layer.displayName] = layer;
         return this.wwd.addLayer(layer);
     }
 
@@ -332,7 +333,6 @@ class WorldWindowWrapper {
         let layers = [
             new WorldWind.BMNGOneImageLayer(),
             new WorldWind.BMNGLandsatLayer(),
-            new WorldWind.CompassLayer(),
         ];
 
         for (let layer of layers) {
@@ -341,6 +341,35 @@ class WorldWindowWrapper {
         this.addLayer(new WorldWind.CoordinatesDisplayLayer(this.wwd));
         this.addLayer(new WorldWind.ViewControlsLayer(this.wwd));
     }
+
+
+    placeSatellites(ids) {
+        let modelLayer = new WorldWind.RenderableLayer('Satellite Layer');
+        console.log(modelLayer)
+        this.addLayer(modelLayer);
+        var config = { dirPath: WorldWind.configuration.baseUrl + 'examples/collada_models/duck/' };
+        for (let satelliteId of ids) {
+            console.log(satelliteId)
+            console.log(this.satellitePositions[satelliteId])
+            if (this.satellitePositions[satelliteId]) {
+                let times = Object.keys(this.satellitePositions[satelliteId])
+                if (times) {
+                    let time = times[0]
+                    let coordinates = this.satellitePositions[satelliteId][time];
+                    let position = new WorldWind.Position(
+                        coordinates[0], coordinates[1], coordinates[2]
+                    );
+                    let colladaLoader = new WorldWind.ColladaLoader(position, config);
+                    colladaLoader.load("duck.dae", (colladaModel) => {
+                        colladaModel.scale = 9000;
+                        console.log(this.layers)
+                        this.layers['Satellite Layer'].addRenderable(colladaModel);
+                    });
+                }
+            }
+        }
+    }
+
 }
 
 module.exports = WorldWindowWrapper;
